@@ -22,10 +22,10 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 // #include <tensorflow/lite/version.h>
 
-#include "model.h"
+#include "model_l.h"
 #include "2.h"
 
-const float accelerationThreshold = 2.5;  // threshold of significant in G's
+// const float accelerationThreshold = 2.5;  // threshold of significant in G's
 const int numSamples = 28 * 28;
 // const int num
 
@@ -46,16 +46,16 @@ TfLiteTensor* tflOutputTensor = nullptr;
 
 // Create a static memory buffer for TFLM, the size may need to
 // be adjusted based on the model you are using
-constexpr int tensorArenaSize = 128 * 1024;
+constexpr int tensorArenaSize = 120 * 1024;
 byte tensorArena[tensorArenaSize] __attribute__((aligned(16)));
 
-// array to map gesture index to a name
-const char* GESTURES[] = {
-  "punch",
-  "flex"
-};
+// // array to map gesture index to a name
+// const char* GESTURES[] = {
+//   "punch",
+//   "flex"
+// };
 
-#define NUM_GESTURES (sizeof(GESTURES) / sizeof(GESTURES[0]))
+// #define NUM_GESTURES (sizeof(GESTURES) / sizeof(GESTURES[0]))
 
 void setup() {
   Serial.begin(9600);
@@ -158,7 +158,7 @@ void loop() {
 
   if (invokeStatus != kTfLiteOk) {
     Serial.println("Invoke failed!");
-    return;
+    // return;
   }
 
   for (int i = 0; i < 10; i++) {
