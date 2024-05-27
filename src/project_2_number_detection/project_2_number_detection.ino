@@ -21,7 +21,7 @@
 // #include <tensorflow/lite/version.h>
 
 #include "model.h"
-#include "0.h"
+#include "9.h"
 
 const int numSamples = 28 * 28;
 
@@ -91,7 +91,6 @@ void loop() {
   for (int i = 0; i < 10; i++) {
     Serial.print(i);
     Serial.print("-->");
-    Serial.print("Prdiction-->");
     Serial.println(tflOutputTensor->data.f[i], 6);
 
     if (tflOutputTensor->data.f[i] > maxPrediction) {
