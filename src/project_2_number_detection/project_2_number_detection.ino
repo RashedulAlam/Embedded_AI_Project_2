@@ -13,8 +13,6 @@
   This example code is in the public domain.
 */
 
-// #include <Arduino_LSM9DS1.h>
-
 #include "TensorFlowLite.h"
 #include "tensorflow/lite/micro/all_ops_resolver.h"
 // #include <tensorflow/lite/micro/micro_error_reporter.h>
@@ -22,17 +20,10 @@
 #include "tensorflow/lite/schema/schema_generated.h"
 // #include <tensorflow/lite/version.h>
 
-#include "model_l.h"
-#include "2.h"
+#include "model.h"
+#include "0.h"
 
-// const float accelerationThreshold = 2.5;  // threshold of significant in G's
 const int numSamples = 28 * 28;
-// const int num
-
-int samplesRead = numSamples;
-
-// global variables used for TensorFlow Lite (Micro)
-// tflite::MicroErrorReporter tflErrorReporter;
 
 // pull in all the TFLM ops, you can remove this line and
 // only pull in the TFLM ops you need, if would like to reduce
@@ -62,22 +53,6 @@ void setup() {
   while (!Serial)
     ;
 
-  // // initialize the IMU
-  // if (!IMU.begin()) {
-  //   Serial.println("Failed to initialize IMU!");
-  //   while (1);
-  // }
-
-  // // print out the samples rates of the IMUs
-  // Serial.print("Accelerometer sample rate = ");
-  // Serial.print(IMU.accelerationSampleRate());
-  // Serial.println(" Hz");
-  // Serial.print("Gyroscope sample rate = ");
-  // Serial.print(IMU.gyroscopeSampleRate());
-  // Serial.println(" Hz");
-
-  // Serial.println();
-
   // get the TFL representation of the model byte array
   tflModel = tflite::GetModel(model);
   if (tflModel->version() != TFLITE_SCHEMA_VERSION) {
@@ -99,56 +74,6 @@ void setup() {
 
 void loop() {
 
-
-  // check if the all the required samples have been read since
-  // the last time the significant motion was detected
-  // while (samplesRead < numSamples) {
-  //   // check if new acceleration AND gyroscope data is available
-  //   if (IMU.accelerationAvailable() && IMU.gyroscopeAvailable()) {
-  //     // read the acceleration and gyroscope data
-  //     IMU.readAcceleration(aX, aY, aZ);
-  //     IMU.readGyroscope(gX, gY, gZ);
-
-  //     // normalize the IMU data between 0 to 1 and store in the model's
-  //     // input tensor
-  //     tflInputTensor->data.f[samplesRead * 6 + 0] = (aX + 4.0) / 8.0;
-  //     tflInputTensor->data.f[samplesRead * 6 + 1] = (aY + 4.0) / 8.0;
-  //     tflInputTensor->data.f[samplesRead * 6 + 2] = (aZ + 4.0) / 8.0;
-  //     tflInputTensor->data.f[samplesRead * 6 + 3] = (gX + 2000.0) / 4000.0;
-  //     tflInputTensor->data.f[samplesRead * 6 + 4] = (gY + 2000.0) / 4000.0;
-  //     tflInputTensor->data.f[samplesRead * 6 + 5] = (gZ + 2000.0) / 4000.0;
-
-  //     samplesRead++;
-
-  //     if (samplesRead == numSamples) {
-  //       // Run inferencing
-  //       TfLiteStatus invokeStatus = tflInterpreter->Invoke();
-  //       if (invokeStatus != kTfLiteOk) {
-  //         Serial.println("Invoke failed!");
-  //         while (1);
-  //         return;
-  //       }
-
-  //       // Loop through the output tensor values from the model
-  //       for (int i = 0; i < NUM_GESTURES; i++) {
-  //         Serial.print(GESTURES[i]);
-  //         Serial.print(": ");
-  //         Serial.println(tflOutputTensor->data.f[i], 6);
-  //       }
-  //       Serial.println();
-  //     }
-  //   }
-  // }
-
-
-
-  // Serial.println("start inferacing");
-
-  // int length = sizeof(image_data) / sizeof(image_data[0]);
-
-  // print(length)
-  // Serial.println(length);
-
   for (int i = 0; i < numSamples; i++) {
     // Serial.println(image_data[i]);
     tflInputTensor->data.f[i] = (float)image_data[i] / 255.0;
@@ -158,15 +83,28 @@ void loop() {
 
   if (invokeStatus != kTfLiteOk) {
     Serial.println("Invoke failed!");
-    // return;
   }
+
+  float maxPrediction = tflOutputTensor->data.f[0];
+  int maxIndex = 0;
 
   for (int i = 0; i < 10; i++) {
-    Serial.println(i);
-    Serial.println("Prdiction ");
+    Serial.print(i);
+    Serial.print("-->");
+    Serial.print("Prdiction-->");
     Serial.println(tflOutputTensor->data.f[i], 6);
 
+    if (tflOutputTensor->data.f[i] > maxPrediction) {
+      maxPrediction = tflOutputTensor->data.f[i];
+      maxIndex = i;
+    }
   }
+
+  // Print the maximum prediction and its index
+  Serial.print("Max Prediction Value-->");
+  Serial.println(maxPrediction, 6);
+  Serial.print("Detected Number -->");
+  Serial.println(maxIndex);
 
   delay(10000);
 }
